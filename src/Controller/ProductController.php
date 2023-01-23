@@ -24,18 +24,19 @@ class ProductController extends AbstractController
     #[Route('/nos-produits', name: 'app_products')]
     public function index(Request $request): Response
     {
-        // avec doctrine on demande de chercher dans le repository toutes les produits
-        $products = $this->entityManager->getRepository(Product::class)->findAll();
-        
         // render form filtre
         $search = new Search();
         $form = $this->createForm(SearchType::class, $search);
 
         // Traiter la requête de filtre
         $form->handleRequest($request);
+
         if($form->isSubmitted() && $form->isValid()) {
             // call une requête dans le repository selon conditions du filtre demandées
             $products = $this->entityManager->getRepository(Product::class)->findWithSearch($search);
+        } else {
+            // avec doctrine on demande de chercher dans le repository toutes les produits
+            $products = $this->entityManager->getRepository(Product::class)->findAll();
         }
 
         return $this->render('product/index.html.twig', [
