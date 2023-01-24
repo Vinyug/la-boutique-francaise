@@ -30,11 +30,11 @@
                     </td>
                     <td>
                         <a href="{{ path('app_decrease_to_cart', { 'id' : product.product.id }) }}">
-                            <img class="" height="14px" src="{{ asset('assets/img/minus.svg') }}" alt="Retirer une unité au produit">
+                            <img class="img-minus" height="14px" src="{{ asset('assets/img/minus.svg') }}" alt="Retirer une unité au produit">
                         </a>
                         x {{ product.quantity }}
                         <a href="{{ path('app_add_to_cart', { 'id' : product.product.id }) }}">
-                            <img class="" height="14px" src="{{ asset('assets/img/plus.svg') }}" alt="Ajouter une unité au produit">
+                            <img class="img-plus" height="14px" src="{{ asset('assets/img/plus.svg') }}" alt="Ajouter une unité au produit">
                         </a>
                     </td>
                     <td>{{ (product.product.price / 100) | number_format(2, ',') }} €</td>
