@@ -11,29 +11,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CartController extends AbstractController
 {
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
     // render panier
     #[Route('/mon-panier', name: 'app_cart')]
     public function index(Cart $cart): Response
     {
-        $cartComplete = [];
-
-        // requête pour récupérer les datas product selon produits dans panier
-        foreach($cart->get() as $id => $quantity) {
-            $cartComplete[] = [
-                'product' => $this->entityManager->getRepository(Product::class)->findOneById($id),
-                'quantity' => $quantity
-            ];
-        }
-
         return $this->render('cart/index.html.twig', [
-            'cart' => $cartComplete
+            'cart' => $cart->getFull()
         ]);
     }
 
@@ -46,12 +29,30 @@ class CartController extends AbstractController
         return $this->redirectToRoute('app_cart');
     }
 
-    // remove un produit au panier
+    // remove le panier
     #[Route('/cart/remove', name: 'app_remove_my_cart')]
     public function remove(Cart $cart): Response
     {
         $cart->remove();
 
         return $this->redirectToRoute('app_products');
+    }
+
+    // delete un produit au panier
+    #[Route('/cart/delete/{id}', name: 'app_delete_to_cart')]
+    public function delete(Cart $cart, $id): Response
+    {
+        $cart->delete($id);
+
+        return $this->redirectToRoute('app_cart');
+    }
+
+    // decrease une unité produit au panier
+    #[Route('/cart/decrease/{id}', name: 'app_decrease_to_cart')]
+    public function decrease(Cart $cart, $id): Response
+    {
+        $cart->decrease($id);
+
+        return $this->redirectToRoute('app_cart');
     }
 }
