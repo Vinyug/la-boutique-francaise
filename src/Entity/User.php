@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -33,6 +35,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     private ?string $lastname = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
+    private Collection $name;
+
+    public function __construct()
+    {
+        $this->name = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -143,6 +153,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastname(string $lastname): self
     {
         $this->lastname = $lastname;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Address>
+     */
+    public function getName(): Collection
+    {
+        return $this->name;
+    }
+
+    public function addName(Address $name): self
+    {
+        if (!$this->name->contains($name)) {
+            $this->name->add($name);
+            $name->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeName(Address $name): self
+    {
+        if ($this->name->removeElement($name)) {
+            // set the owning side to null (unless already changed)
+            if ($name->getUser() === $this) {
+                $name->setUser(null);
+            }
+        }
 
         return $this;
     }
