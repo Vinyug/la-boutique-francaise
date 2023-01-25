@@ -37,11 +37,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastname = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
-    private Collection $name;
+    private Collection $addresses;
 
     public function __construct()
     {
-        $this->name = new ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -160,27 +160,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Address>
      */
-    public function getName(): Collection
+    public function getAddresses(): Collection
     {
-        return $this->name;
+        return $this->addresses;
     }
 
-    public function addName(Address $name): self
+    public function addAddresses(Address $addresses): self
     {
-        if (!$this->name->contains($name)) {
-            $this->name->add($name);
-            $name->setUser($this);
+        if (!$this->addresses->contains($addresses)) {
+            $this->addresses->add($addresses);
+            $addresses->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeName(Address $name): self
+    public function removeAddresses(Address $addresses): self
     {
-        if ($this->name->removeElement($name)) {
+        if ($this->addresses->removeElement($addresses)) {
             // set the owning side to null (unless already changed)
-            if ($name->getUser() === $this) {
-                $name->setUser(null);
+            if ($addresses->getUser() === $this) {
+                $addresses->setUser(null);
             }
         }
 
