@@ -20,9 +20,10 @@ class OrderValidateController extends AbstractController
     #[Route('/commande/merci/{stripeSessionId}', name: 'app_order_validate')]
     public function index($stripeSessionId): Response
     {
-        $order = $this->entityManager->getRepository(Order::class)->findOneByStripeSessionId($stripeSessionId);
+        // retirer le .html à la variable 
+        $stripeSessionId = str_replace('.html', '', $stripeSessionId);
 
-        // dd($order);
+        $order = $this->entityManager->getRepository(Order::class)->findOneByStripeSessionId($stripeSessionId);
 
         // redirection si problème
         if(!$order || $order->getUser() != $this->getUser()) {

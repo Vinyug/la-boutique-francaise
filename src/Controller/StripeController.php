@@ -9,12 +9,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StripeController extends AbstractController
 {
     #[Route('/commande/create-session/{reference}', name: 'app_stripe_create_session')]
-    public function index(EntityManagerInterface $entityManager ,Cart $cart, $reference)
+    public function index(EntityManagerInterface $entityManager ,Cart $cart, $reference): Response
     {
         $products_for_stripe = [];
         $YOUR_DOMAIN = 'http://domainesymfony.com';
