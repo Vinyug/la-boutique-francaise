@@ -17,7 +17,7 @@ class StripeController extends AbstractController
     public function index(EntityManagerInterface $entityManager ,Cart $cart, $reference)
     {
         $products_for_stripe = [];
-        $YOUR_DOMAIN = 'http://127.0.0.1:80';
+        $YOUR_DOMAIN = 'http://domainesymfony.com';
 
         $order = $entityManager->getRepository(Order::class)->findOneByReference($reference);
         
@@ -43,7 +43,6 @@ class StripeController extends AbstractController
             ];
         }
         
-        
         // Ajouter les infos carrier
         $products_for_stripe[] = [
             'price_data' => [
@@ -68,12 +67,16 @@ class StripeController extends AbstractController
                 $products_for_stripe
             ],
             'mode' => 'payment',
-            'success_url' => $YOUR_DOMAIN . '/success.html',
-            'cancel_url' => $YOUR_DOMAIN . '/cancel.html',
+            'success_url' => $YOUR_DOMAIN . '/commande/merci/{CHECKOUT_SESSION_ID}.html',
+            'cancel_url' => $YOUR_DOMAIN . '/commande/erreur/{CHECKOUT_SESSION_ID}.html',
         ]);
 
-        $url_strip = $checkout_session->url;
+        // Injection de l'id du checkout_session dans la commande
+        // permet de rediriger vers la page de succes_url si tout s'est bien passé
+        $order->setStripeSessionId($checkout_session->id);
+        $entityManager->flush();
 
+        $url_strip = $checkout_session->url;
         return $this->redirect($url_strip);
     }
 }
