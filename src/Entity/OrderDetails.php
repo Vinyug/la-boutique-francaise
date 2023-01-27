@@ -29,6 +29,12 @@ class OrderDetails
     #[ORM\Column]
     private ?float $total = null;
 
+    // Cas d'un form qui n'est pas liée a cette entity
+    public function __toString()
+    {
+        return $this->getProduct().' x'.$this->getQuantity();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

@@ -27,7 +27,7 @@ class Carrier
     // [br] sont remplacés dans le order index.html par des </br> via twig
     public function __toString()
     {
-        return $this->getName().'[br]'.$this->getDescription().'[br]'.number_format($this->getPrice(), 2, ',', '.').' €';
+        return $this->getName().'[br]'.$this->getDescription().'[br]'.number_format(($this->getPrice() / 100), 2, ',', '.').' €';
     }
 
     public function getId(): ?int
