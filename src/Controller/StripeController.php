@@ -3,35 +3,59 @@
 namespace App\Controller;
 
 use App\Classe\Cart;
+use App\Entity\Order;
+use App\Entity\Product;
+use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StripeController extends AbstractController
 {
-    #[Route('/commande/create-session', name: 'app_stripe_create_session')]
-    public function index(Cart $cart)
+    #[Route('/commande/create-session/{reference}', name: 'app_stripe_create_session')]
+    public function index(EntityManagerInterface $entityManager ,Cart $cart, $reference)
     {
         $products_for_stripe = [];
         $YOUR_DOMAIN = 'http://127.0.0.1:80';
 
+        $order = $entityManager->getRepository(Order::class)->findOneByReference($reference);
+        
+        // si référence inexistante redirect
+        if(!$order) {
+            return $this->redirectToRoute('app_order');
+        }
+
         // récupérer les produits OrderDetails()
         // itérer pour le paiement
-        foreach($cart->getFull() as $product) {
+        foreach($order->getOrderDetails()->getValues() as $product) {
+            $product_object = $entityManager->getRepository(Product::class)->findOneByName($product->getProduct());
             $products_for_stripe[] = [
                 'price_data' => [
                     'currency' => 'EUR',
-                    'unit_amount' => $product['product']->getPrice(),
+                    'unit_amount' => $product->getPrice(),
                     'product_data' => [
-                        'name' => $product['product']->getName(),
-                        'images' => [$YOUR_DOMAIN."/assets/images/".$product['product']->getIllustration()],
+                        'name' => $product->getProduct(),
+                        'images' => [$YOUR_DOMAIN."/assets/images/".$product_object->getIllustration()],
                     ]
                 ],
-                'quantity' => $product['quantity'],
+                'quantity' => $product->getQuantity(),
             ];
         }
+        
+        
+        // Ajouter les infos carrier
+        $products_for_stripe[] = [
+            'price_data' => [
+                'currency' => 'EUR',
+                'unit_amount' => $order->getCarrierPrice() * 100,
+                'product_data' => [
+                    'name' => $order->getCarrierName(),
+                    'images' => [$YOUR_DOMAIN],
+                ]
+            ],
+            'quantity' => 1,
+        ];
 
         // API STRIPE
         $stripeSecretKey = 'sk_test_51MUXUUJqdSb49JUaaB5JPWokX4rJc53jpJjzBBrLwJacMN1YbMG7dTM3KqbcPV3OgiWiVuU2Q7KS4gDyt6VIWqjP00s6gXjr3v';
@@ -39,6 +63,7 @@ class StripeController extends AbstractController
         Stripe::setApiKey($stripeSecretKey);
         
         $checkout_session = Session::create([
+            'customer_email' => $this->getUser()->getEmail(), // permet de get l'email user dans l'input du module stripe
             'line_items' => [
                 $products_for_stripe
             ],
