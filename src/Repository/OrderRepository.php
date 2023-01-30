@@ -39,6 +39,20 @@ class OrderRepository extends ServiceEntityRepository
         }
     }
 
+    // requête custom pour afficher les commandes dans l'espace membre de l'utilisateur
+    public function findSuccessOrders($user) 
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.isPaid = 1')
+            // concerne uniquement user connecté. On passe un marqueur nommé
+            ->andWhere('o.user = :user')
+            // on défini le marqueur nommé en paramètre de la fonction, qui se retrouvera dans AccountOrderController function index()
+            ->setParameter('user', $user)
+            ->orderBy('o.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Order[] Returns an array of Order objects
 //     */
