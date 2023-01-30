@@ -43,7 +43,7 @@ class OrderRepository extends ServiceEntityRepository
     public function findSuccessOrders($user) 
     {
         return $this->createQueryBuilder('o')
-            ->andWhere('o.isPaid = 1')
+            ->andWhere('o.state > 0')
             // concerne uniquement user connecté. On passe un marqueur nommé
             ->andWhere('o.user = :user')
             // on défini le marqueur nommé en paramètre de la fonction, qui se retrouvera dans AccountOrderController function index()
