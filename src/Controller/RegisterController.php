@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Classe\Mail;
 use App\Entity\User;
 use App\Form\RegisterType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +25,8 @@ class RegisterController extends AbstractController
     #[Route('/inscription', name: 'app_register')]
     public function index(Request $request, UserPasswordHasherInterface $passwordHasher): Response
     {
+        // notification d'inscription par mail
+        $notification = null;
 
         // instancier un User
         $user = new User();
@@ -39,18 +42,35 @@ class RegisterController extends AbstractController
             // dd() est un var_dump and die
             // dd($user);
             
-            // Hasher password
-            $password = $passwordHasher->hashPassword($user, $user->getPassword());
-            $user->setPassword($password);
+            // verification si user est déjà existant
+            $search_email = $this->entityManager->getRepository(User::class)->findOneByEmail($user->getEmail());
 
-            // figer les datas (pour une création)
-            $this->entityManager->persist($user);
-            // execute et transmet en bdd
-            $this->entityManager->flush();
+            if(!$search_email) {
+                // Hasher password
+                $password = $passwordHasher->hashPassword($user, $user->getPassword());
+                $user->setPassword($password);
+
+                // figer les datas (pour une création)
+                $this->entityManager->persist($user);
+                // execute et transmet en bdd
+                $this->entityManager->flush();
+
+                // mail de confirmation
+                $mail = new Mail();
+                $content = "Bonjour".$user->getFirstname()."<br/>Bienvenue sur la première boutique dédiée au made in France.<br/><br/>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum quis ipsum esse quaerat vel facere optio libero aspernatur amet. Provident saepe, explicabo aspernatur exercitationem sit laboriosam magni rerum totam ad.";
+                $mail->send($user->getEmail(), $user->getFirstname(), 'Bienvenue sur la Boutique Française', $content);
+
+                $notification = "Votre inscription s'est correctement déroulée. Vous pouvez dès à présent vous connecter à votre compte";
+            } else {
+                $notification = "L'email que vous avez renseigné existe déjà.";
+            }
+            
+
         }
 
         return $this->render('register/index.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'notification' => $notification
         ]);
     }
 }
