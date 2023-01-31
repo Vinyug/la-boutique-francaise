@@ -52,6 +52,8 @@ class ProductController extends AbstractController
         
         // avec doctrine on demande de chercher dans le repository un produit selon slug
         $product = $this->entityManager->getRepository(Product::class)->findOneBySlug($slug);
+        // avec doctrine on demande de chercher dans le repository un produit si isBest = 1
+        $products = $this->entityManager->getRepository(Product::class)->findByIsBest(1);
 
         // redirection
         if(!$product) {
@@ -59,7 +61,8 @@ class ProductController extends AbstractController
         }
 
         return $this->render('product/show.html.twig', [
-            'product' => $product
+            'product' => $product,
+            'products' => $products
         ]);
     }
 }
