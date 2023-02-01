@@ -7,9 +7,11 @@ use Mailjet\Resources;
 
 class Mail 
 {
-    private $api_key = "cleAPI";
-    private $api_key_secret = "cleSecreteApi";
-
+    // renseigner la clé api
+    private $api_key = "api_key";
+    // renseigner la clé api secrete
+    private $api_key_secret = "api_key_secret";
+    
     public function send($to_email, $to_name, $subject, $content) 
     {
         $mj = new Client($this->api_key, $this->api_key_secret, true,['version' => 'v3.1']);
@@ -17,7 +19,8 @@ class Mail
             'Messages' => [
                 [
                     'From' => [
-                        'Email' => "mailAssociéMailJet",
+                        // renseigner le mail associé à MailJet
+                        'Email' => "mail",
                         'Name' => "La Boutique Française"
                     ],
                     'To' => [
