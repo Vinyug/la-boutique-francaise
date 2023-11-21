@@ -1,4 +1,4 @@
-# les_magiciens_du_fouet
+# la_boutique_française
 
 ### This project work on Symfony 5.4
 
